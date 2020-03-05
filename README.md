@@ -22,7 +22,7 @@ NOTE: the entry is not complete as the pages and doi have yet to be assigned.
 
 ## Usage
 
-```
+```cpp
 // our probabilistic quadrics
 #include "probabilistic-quadrics.hh"
 
@@ -81,7 +81,7 @@ Our code is written to be largely agnostic to the choice of the math library.
 The `quadric` type is templated on a trait class that abstracts the math code away.
 Different types for positions and vectors are supported but not required.
 
-```
+```cpp
 template <class ScalarT, class Pos3, class Vec3, class Mat3>
 struct math;
 ```
@@ -89,28 +89,28 @@ struct math;
 The following math classes are tested:
 
 * the built-in minimal-math.hh:
-  ```
+  ```cpp
   #include "minimal-math.hh"
   pq::minimal_math<float>
   pq::minimal_math<double>
   ```
 
 * Typed Geometry:
-  ```
+  ```cpp
   #include <typed-geometry/tg.hh>
   pq::math<float, tg::pos3, tg::vec3, tg::mat3>
   pq::math<double, tg::dpos3, tg::dvec3, tg::dmat3>
   ```
 
 * GLM:
-  ```
+  ```cpp
   #include <glm/glm.hpp>
   pq::math<float, glm::vec3, glm::vec3, glm::mat3>
   pq::math<double, glm::dvec3, glm::dvec3, glm::dmat3>
   ```
 
 * Eigen:
-  ```
+  ```cpp
   #include <eigen3/Eigen/Core>
   pq::math<float, Eigen::Vector3f, Eigen::Vector3f, Eigen::Matrix3f>
   pq::math<double, Eigen::Vector3d, Eigen::Vector3d, Eigen::Matrix3d>
