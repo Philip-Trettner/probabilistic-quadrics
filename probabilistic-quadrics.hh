@@ -50,6 +50,58 @@ namespace pq
 
 /// A quadric is defined using a math type traits class
 ///
+/// Usage examples:
+///
+///   // our probabilistic quadrics
+///   #include "probabilistic-quadrics.hh"
+///   
+///   // some math library (see below for different options)
+///   #include "minimal-math.hh"
+///   
+///   // optional: typedef your quadric type
+///   using quadric3 = pq::quadric<pq::minimal_math<float>>;
+///   using dquadric3 = pq::quadric<pq::minimal_math<double>>;
+///   
+///   // quadrics are value types with proper operator overloads
+///   quadric3 q;
+///   q = q + q;
+///   q = q - q;
+///   q = q * 3;
+///   q = q / 2.5f;
+///   
+///   // quadrics can be evaluated at positions
+///   q(1, 2, 3);
+///   q({1, 2, 3});
+///   q(some_pos);
+///   
+///   // quadrics can be created from coefficients
+///   q = quadric3::from_coefficients(some_mat3, some_vec3, some_scalar);
+///   
+///   // quadric minimizers can be computed (using matrix inversion internally)
+///   pq::pos3 min_p = q.minimizer();
+///   
+///   // some classical quadrics are predefined:
+///   q = quadric3::point_quadric(some_pos);
+///   q = quadric3::plane_quadric(some_pos, some_normal_vec);
+///   q = quadric3::triangle_quadric(p0, p1, p2);
+///   
+///   // our probabilistic plane quadrics in isotropic or general form:
+///   float stddev_pos = ...;
+///   float stddev_normal = ...;
+///   pq:mat3 sigma_pos = ...;
+///   pq:mat3 sigma_normal = ...;
+///   q = quadric3::probabilistic_plane_quadric(mean_pos, mean_normal, stddev_pos, stddev_normal);
+///   q = quadric3::probabilistic_plane_quadric(mean_pos, mean_normal, sigma_pos, sigma_normal);
+///   
+///   // our probabilistic triangle quadrics in isotropic or general form:
+///   float stddev_pos = ...;
+///   pq:mat3 sigma_p0 = ...;
+///   pq:mat3 sigma_p1 = ...;
+///   pq:mat3 sigma_p2 = ...;
+///   q = quadric3::probabilistic_triangle_quadric(p0, p1, p2, stddev_pos);
+///   q = quadric3::probabilistic_triangle_quadric(p0, p1, p2, sigma_p0, sigma_p1, sigma_p2);
+///
+///
 /// The following math classes are tested:
 ///
 ///   the built-in minimal-math.hh:
