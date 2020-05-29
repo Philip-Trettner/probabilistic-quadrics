@@ -2,9 +2,9 @@
 
 Reference implementation of the Eurographics 2020 paper "Fast and Robust QEF Minimization using Probabilistic Quadrics".
 
-Publication page: https://graphics.rwth-aachen.de/probabilistic-quadrics
-
-Eurographics DL: https://diglib.eg.org/handle/10.1111/cgf13933
+* Publication page: https://graphics.rwth-aachen.de/probabilistic-quadrics
+* Eurographics DL: https://diglib.eg.org/handle/10.1111/cgf13933
+* Eurographics Talk: https://www.youtube.com/watch?v=uEzGgFdbFMA&t=3080s
 
 ```
 @article {10.1111:cgf.13933,
