@@ -2,17 +2,21 @@
 
 Reference implementation of the Eurographics 2020 paper "Fast and Robust QEF Minimization using Probabilistic Quadrics".
 
-Project page: https://graphics.rwth-aachen.de/probabilistic-quadrics
+Publication page: https://graphics.rwth-aachen.de/probabilistic-quadrics
+
+Eurographics DL: https://diglib.eg.org/handle/10.1111/cgf13933
 
 ```
-@article{Trettner2020,
+@article {10.1111:cgf.13933,
     journal = {Computer Graphics Forum},
     title = {{Fast and Robust QEF Minimization using Probabilistic Quadrics}},
-    author = {Philip Trettner and Leif Kobbelt},
+    author = {Trettner, Philip and Kobbelt, Leif},
     year = {2020},
+    publisher = {The Eurographics Association and John Wiley & Sons Ltd.},
+    ISSN = {1467-8659},
+    DOI = {10.1111/cgf.13933}
 }
 ```
-NOTE: the entry is not complete as the pages and doi have yet to be assigned.
 
 
 ## Dependencies
