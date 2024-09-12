@@ -1,11 +1,11 @@
 #pragma once
 
 // ===============================================================================
-// Reference implementation of the Eurographics 2020 paper 
+// Reference implementation of the Eurographics 2020 paper
 // "Fast and Robust QEF Minimization using Probabilistic Quadrics".
-// 
+//
 // Project page: https://graphics.rwth-aachen.de/probabilistic-quadrics
-// 
+//
 // ```
 // @article{Trettner2020,
 //     journal = {Computer Graphics Forum},
@@ -20,19 +20,19 @@
 
 // ===============================================================================
 // MIT License
-// 
+//
 // Copyright (c) 2020 Philip Trettner
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,6 +43,7 @@
 // ===============================================================================
 
 #include <type_traits>
+#include <cmath>
 
 namespace pq
 {
@@ -54,37 +55,37 @@ namespace pq
 ///
 ///   // our probabilistic quadrics
 ///   #include "probabilistic-quadrics.hh"
-///   
+///
 ///   // some math library (see below for different options)
 ///   #include "minimal-math.hh"
-///   
+///
 ///   // optional: typedef your quadric type
 ///   using quadric3 = pq::quadric<pq::minimal_math<float>>;
 ///   using dquadric3 = pq::quadric<pq::minimal_math<double>>;
-///   
+///
 ///   // quadrics are value types with proper operator overloads
 ///   quadric3 q;
 ///   q = q + q;
 ///   q = q - q;
 ///   q = q * 3;
 ///   q = q / 2.5f;
-///   
+///
 ///   // quadrics can be evaluated at positions
 ///   q(1, 2, 3);
 ///   q({1, 2, 3});
 ///   q(some_pos);
-///   
+///
 ///   // quadrics can be created from coefficients
 ///   q = quadric3::from_coefficients(some_mat3, some_vec3, some_scalar);
-///   
+///
 ///   // quadric minimizers can be computed (using matrix inversion internally)
 ///   pq::pos3 min_p = q.minimizer();
-///   
+///
 ///   // some classical quadrics are predefined:
 ///   q = quadric3::point_quadric(some_pos);
 ///   q = quadric3::plane_quadric(some_pos, some_normal_vec);
 ///   q = quadric3::triangle_quadric(p0, p1, p2);
-///   
+///
 ///   // our probabilistic plane quadrics in isotropic or general form:
 ///   float stddev_pos = ...;
 ///   float stddev_normal = ...;
@@ -92,7 +93,7 @@ namespace pq
 ///   pq:mat3 sigma_normal = ...;
 ///   q = quadric3::probabilistic_plane_quadric(mean_pos, mean_normal, stddev_pos, stddev_normal);
 ///   q = quadric3::probabilistic_plane_quadric(mean_pos, mean_normal, sigma_pos, sigma_normal);
-///   
+///
 ///   // our probabilistic triangle quadrics in isotropic or general form:
 ///   float stddev_pos = ...;
 ///   pq:mat3 sigma_p0 = ...;
@@ -615,41 +616,48 @@ public:
 
     // functions
 public:
-    [[nodiscard]] pos3 minimizer() const
-    {
+    [[nodiscard]] pos3 minimizer() const {
         // Returns a point minimizing this quadric
         // Solving Ax = r with some common subexpressions precomputed
+        using std::fma;
 
-        auto a = A00;
-        auto b = A01;
-        auto c = A02;
-        auto d = A11;
-        auto e = A12;
-        auto f = A22;
-        auto r0 = b0;
-        auto r1 = b1;
-        auto r2 = b2;
+        auto a00 = A00;
+        auto a10 = A01;
+        auto a20 = A02;
+        auto a11 = A11;
+        auto a21 = A12;
+        auto a22 = A22;
+        auto x0 = b0;
+        auto x1 = b1;
+        auto x2 = b2;
 
-        auto ad = a * d;
-        auto ae = a * e;
-        auto af = a * f;
-        auto bc = b * c;
-        auto be = b * e;
-        auto bf = b * f;
-        auto df = d * f;
-        auto ce = c * e;
-        auto cd = c * d;
+        auto d0 = scalar_t(1.0) / a00;
+        auto l10 = a10 * -d0;
+        auto l20 = a20 * -d0;
 
-        auto be_cd = be - cd;
-        auto bc_ae = bc - ae;
-        auto ce_bf = ce - bf;
+        a11 = fma(a10, l10, a11);
+        a21 = fma(a20, l10, a21);
+        a22 = fma(a20, l20, a22);
 
-        auto denom = scalar_t(1) / (a * df + scalar_t(2) * b * ce - ae * e - bf * b - cd * c);
-        auto nom0 = r0 * (df - e * e) + r1 * ce_bf + r2 * be_cd;
-        auto nom1 = r0 * ce_bf + r1 * (af - c * c) + r2 * bc_ae;
-        auto nom2 = r0 * be_cd + r1 * bc_ae + r2 * (ad - b * b);
+        auto d1 = scalar_t(1.0) / a11;
+        auto l21 = a21 * -d1;
+        a22 = fma(a21, l21, a22);
 
-        return math::make_pos(nom0 * denom, nom1 * denom, nom2 * denom);
+        auto d2 = scalar_t(1.0) / a22;
+
+        x1 = fma(l10, x0, x1);
+        x2 = fma(l20, x0, x2);
+        x2 = fma(l21, x1, x2);
+
+        x0 *= d0;
+        x1 *= d1;
+        x2 *= d2;
+
+        x0 = fma(l20, x2, x0);
+        x1 = fma(l21, x2, x1);
+        x0 = fma(l10, x1, x0);
+
+        return math::make_pos(x0, x1, x2);
     }
 
     // operators
