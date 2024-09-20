@@ -618,7 +618,8 @@ public:
 public:
     [[nodiscard]] pos3 minimizer() const {
         // Returns a point minimizing this quadric
-        // Solving Ax = r with some common subexpressions precomputed
+        // Solving Ax = r with using an unrolled https://en.wikipedia.org/wiki/Cholesky_decomposition
+        // Thanks to @jdumas and @sarah-ek for this optimized implementation!
         using std::fma;
 
         auto a00 = A00;
